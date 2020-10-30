@@ -53,6 +53,7 @@
         _exactHeight = 0.0f;
         
         _extraData = nil;
+        _enableVoiceoverSupport = false;
     }
     return self;
 }
@@ -99,6 +100,7 @@
     
     newConfig.exactWidth = _exactWidth;
     newConfig.exactHeight = _exactHeight;
+    newConfig.enableVoiceoverSupport = _enableVoiceoverSupport;
     
     if ([_extraData conformsToProtocol:@protocol(NSCopying)] &&
         [_extraData respondsToSelector:@selector(copyWithZone:)]) {
@@ -582,6 +584,7 @@
 }
 
 - (UIView *)tagCollectionView:(TTGTagCollectionView *)tagCollectionView tagViewForIndex:(NSUInteger)index {
+    [self setupVoiceoverForElementIfRequired:index];
     return _tagLabels[index];
 }
 
@@ -622,6 +625,8 @@
         } else {
             [self updateStyleAndFrameForLabel:label];
         }
+        
+        [self updateVoiceoverForLabel:label];
         
         if ([_delegate respondsToSelector:@selector(textTagCollectionView:didTapTag:atIndex:selected:)]) {
 #pragma clang diagnostic push
@@ -782,6 +787,27 @@
     label.label.text = tagText;
     label.config = config;
     return label;
+}
+
+#pragma mark- Accessibility
+- (void)setupVoiceoverForElementIfRequired:(NSUInteger)index {
+    if ([[self defaultConfig] enableVoiceoverSupport]) {
+        TTGTextTagLabel *label = _tagLabels[index];
+        label.label.isAccessibilityElement = true;
+        if (index == 0) {
+            label.label.accessibilityValue = [NSString stringWithFormat:NSLocalizedString(@"list of %d items, start of list, 1 of %d", @"first index"),_tagLabels.count,_tagLabels.count];
+        } else if (index == _tagLabels.count-1) {
+            label.label.accessibilityValue = [NSString stringWithFormat:NSLocalizedString(@"%d of %d, end of list", @"last index"),_tagLabels.count,_tagLabels.count];
+        } else {
+            label.label.accessibilityValue = [NSString stringWithFormat:NSLocalizedString(@"%d of %d", @"all indexes"),index+1,_tagLabels.count];
+        }
+    }
+}
+
+- (void)updateVoiceoverForLabel:(TTGTextTagLabel *)label {
+    if (label.selected && [[self defaultConfig] enableVoiceoverSupport]) {
+        label.label.accessibilityValue = [label.label.accessibilityValue stringByAppendingString:NSLocalizedString(@". selected", "selected string")];
+    }
 }
 
 @end

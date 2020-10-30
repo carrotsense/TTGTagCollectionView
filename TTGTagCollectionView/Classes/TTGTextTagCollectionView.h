@@ -65,6 +65,9 @@
 // Extra data. You can use this to bind any object you want to each tag.
 @property (nonatomic, strong) NSObject *extraData;
 
+// Accessibility
+@property (assign, nonatomic) BOOL enableVoiceoverSupport;
+
 @end
 
 /// TTGTextTagCollectionView
