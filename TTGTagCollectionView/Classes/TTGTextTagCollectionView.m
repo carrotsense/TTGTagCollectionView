@@ -806,7 +806,7 @@
 
 - (void)updateVoiceoverForLabel:(TTGTextTagLabel *)label {
     if (label.selected && [[self defaultConfig] enableVoiceoverSupport]) {
-        label.label.accessibilityValue = [label.label.accessibilityValue stringByAppendingString:NSLocalizedString(@". selected", "selected string")];
+        label.label.accessibilityTraits = UIAccessibilityTraitSelected
     }
 }
 
